@@ -38,24 +38,7 @@
 */
 
 
-#include <ncurses.h>
-#include <string>
-
-using namespace std;
-
-//guarda os parametros da janela
-typedef struct _WIN_struct { 
-  int startx, starty;
-  int height, width;
-}PWIN;
-
-//tipos de window
-enum {ONLINE, CHAT, MSG};
-
-//funções 
-void escreve_msg (WINDOW *local_win, string msg);
-WINDOW *create_newwin(PWIN *p_win, int type);
-void destroy_win(WINDOW *local_win);
+#include "gui.h"
 
 
 int main(int argc, char *argv[]){
@@ -70,7 +53,7 @@ int main(int argc, char *argv[]){
 
     WINDOW *w_msg;
     PWIN    p_msg;
-    WINDOW *sw_msg;
+    WINDOW *sw_msg;     //sub window na msg ---> preserva as bordas
     PWIN    sp_smg;
 
     int ch;
@@ -78,13 +61,7 @@ int main(int argc, char *argv[]){
     std::string input;
 
 //Setup
-    initscr();              /*Incia o ncurses*/
-    start_color();          /* Começa a funcionalidade das cores */
-    raw();
-    //cbreak();             /* Buffer de linha desativado*/
-    keypad(stdscr, TRUE);	/* Leitura de teclas especiais no stdscr (F1, direcionais, ...) */
-    //noecho();               
-    //curs_set( false );
+    setup();
 
 //Verifica tamanho do terminal. Se for menor, as janelas ficam sobrepostas
     if ((LINES < 30) || (COLS < 90)) {
@@ -110,39 +87,19 @@ int main(int argc, char *argv[]){
     w_chat = create_newwin(&p_chat, CHAT);
 
 //Cria sub-janelas
-    sw_chat = derwin(w_chat, p_chat.height-2, p_chat.width-2, 1, 1);
-    if (sw_chat == NULL)
-    {
-        waddstr(w_chat, "Deu ruim na subwindow!");
-        endwin();
-        return 1;
-    }
-    
-    // wbkgd(sw_chat, COLOR_PAIR(1));  //DEBUG --- Pinta o background da subjaneal
-    wrefresh(sw_chat);
-    scrollok(sw_chat,TRUE);  //habilita o scroll na janela de chat
-
-    sw_msg = derwin(w_msg, p_msg.height-2, p_msg.width-2, 1, 1);
-    if (sw_msg == NULL)
-    {
-        waddstr(w_msg, "Deu ruim na subwindow!");
-        endwin();
-        return 1;
-    }
-    wrefresh(sw_chat);
-    scrollok(sw_msg, TRUE);
+    sw_chat = create_newsubwin(w_chat, &p_chat);
+    sw_msg = create_newsubwin(w_msg, &p_msg);
 
 //Mensagens janela Online
     mvwprintw(w_online, 1, 1, "Usuarios Conectados:");  
     wrefresh(w_online);
 
-    // wmove(sw_chat, 0, 0);        //move cursor para a janela de chat
 
-
-    keypad(sw_msg, TRUE);        // Leitura de teclas especiais na janela chat (F1, direcionais, ...) 
+//Leitura das mensagens
+    keypad(sw_msg, TRUE);       // Leitura de teclas especiais na janela chat (F1, direcionais, ...) 
     echo();                     //letras dogitadas sao mostradas o terminal
-    wmove(sw_msg, 0, 0);         //move cursor para onde comeca a caixa de escrita
-    wrefresh(sw_msg);            //refresh na janela msg
+    wmove(sw_msg, 0, 0);        //move cursor para onde comeca a caixa de escrita
+    wrefresh(sw_msg);           //refresh na janela msg
 
     ch = wgetch(sw_msg);         //le o char da janela de msg
     while (ch != KEY_F(1))
@@ -182,107 +139,16 @@ int main(int argc, char *argv[]){
     /* destroi as janelas */
     wclear(w_online);
     wclear(w_msg);
+    wclear(w_chat);
+
+    destroy_win(sw_msg);
+    destroy_win(sw_chat);
     destroy_win(w_online);
     destroy_win(w_chat);
+    destroy_win(w_chat); 
 
     /* fecha o ncurses*/
     endwin();
     return 0;
 }
-
-
-// funcao para escrever uma mensagem em uma janela
-void escreve_msg (WINDOW *local_win, string msg)
-{
-    int y, x;       //coordenadas do cursor atual
-    int row, col;   //tamanho da janela
-
-    getyx(local_win, y, x);
-    getmaxyx(local_win, row, col);
-
-    if (y == row - 1) //esta na ultima linha
-    {
-        wscrl(local_win, 1);
-        mvwaddstr(local_win, y, 1, msg.data());
-    }
-    else    //esta no meio da tela
-    {
-        mvwaddstr(local_win, y+1, 1, msg.data());
-    }
-    
-    wrefresh(local_win);
-}
-
-
-// funcao para criar as janelas dependendo do tipo especificado
-WINDOW *create_newwin(PWIN *p_win, int type)
-{
-    
-    switch (type)
-    {
-    case ONLINE:     //janela de pessoas online
-        p_win->height = LINES - 2;
-        p_win->width = COLS*1/4 ;
-
-        p_win->starty = 1;     
-        p_win->startx = 1;   
-        break;
-
-    case CHAT:      //janela onde mostra o chat
-        p_win->height = LINES*4/5;
-        p_win->width = COLS*3/4 - 6 ;
-
-        p_win->starty = 1;     
-        p_win->startx = COLS/4 + 3;   
-        break;
-    
-    case MSG:       //janela onde a pessoa escreve as mensagens
-        p_win->height = LINES/5 - 2;
-        p_win->width = COLS*3/4 - 6 ;
-
-        p_win->starty = LINES*4/5 + 2;     
-        p_win->startx = COLS/4 + 3;    
-        break;
-
-    default:        //teoricamente nunca vai ser usado
-        p_win->height = 10;
-        p_win->width = 10;
-        p_win->starty = 2;
-        p_win->startx = 2;
-        break;
-
-    }
-
-    WINDOW *local_win;
-
-    local_win = newwin(p_win->height, p_win->width, p_win->starty, p_win->startx);
-
-    box(local_win,ACS_VLINE, ACS_HLINE);
-    //wborder(local_win, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
-
-    wrefresh(local_win); 
-
-    return local_win;
-}
-
-
-// funcao para destruir a janela, tem que retirar a borda primeiro, sla pq
-void destroy_win(WINDOW *local_win){	
-
-      wborder (local_win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
-  /* Os parâmetros usados são
-    * 1. win: a janela na qual operar
-    * 2. ls: caractere a ser usado para o lado esquerdo da janela
-    * 3. rs: caractere a ser usado para o lado direito da janela
-    * 4. ts: caractere a ser usado na parte superior da janela
-    * 5. bs: caractere a ser usado na parte inferior da janela
-    * 6. tl: caractere a ser usado para o canto superior esquerdo da janela
-    * 7. tr: caractere a ser usado no canto superior direito da janela
-    * 8. bl: caractere a ser usado no canto inferior esquerdo da janela
-    * 9. br: caractere a ser usado no canto inferior direito da janela
-    */
-    wrefresh(local_win);
-    delwin(local_win);
-}
-
 
