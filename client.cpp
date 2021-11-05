@@ -47,11 +47,13 @@ int main(int argc, char *argv[])
         error("Erro na conexão");
     
     //Faz o que o programa deve fazer  no servidor
-    while(strcmp("TERMINAR", buffer) != 0)
+    while(1)
     {
         bzero(buffer, BUFFER_SIZE);
         fgets(buffer, BUFFER_SIZE, stdin);
-
+        if(strncmp("TERMINAR", buffer, 8) == 0)
+            break;
+            
         if(write(sockfd, buffer, strlen(buffer)) < 0)
             error("Erro ao enviar mensagem");
         
@@ -61,6 +63,8 @@ int main(int argc, char *argv[])
             error("Erro ao receber msg do servidor");
         
         printf("Server: %s", buffer);
+
+        
     }
 
     close(sockfd);
