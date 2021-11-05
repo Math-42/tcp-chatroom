@@ -6,7 +6,7 @@
 #include<sys/socket.h>
 #include<netinet/in.h>
 
-#define buffer 255 //Tamanho das mensagens
+#define BUFFER_SIZE 255 //Tamanho das mensagens
 
 void error(const char *msg_error)
 {
@@ -21,8 +21,9 @@ int main(int argc, char *argv[])
         error("ERRO: Insira o nome do arquivo e o nro do PORT");
 
     
-    int sockfd, newSockFd, portNum;
+    int sockfd, newSockFd, portNum, n;
     struct sockaddr_in serv_addr, cli_addr;
+    char buffer[BUFFER_SIZE];
     socklen_t clilen;
 
     //Criar o socket
@@ -41,8 +42,39 @@ int main(int argc, char *argv[])
     {
         error("Erro na configuração do servidor");
     }
-
     //Configuração inicial do servidor concluída
 
+    //Preparar o servidor para "ouvir"
+    listen(sockfd, 5); //Numero limite de clientes
+    clilen = sizeof(cli_addr);
+
+    //Aceitar a conexão
+    newSockFd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+    if(newSockFd < 0)
+        error("Erro ao aceitar clizente");
+
+    //Agora o programa entra em loop, e faz o que deve ser feito
+    while(strcmp("Bye", buffer) != 0)
+    {
+        buffer[0] = '\0';   //Limpar buffer
+
+        //Lê o que o cliente escreveu
+        if(read(newSockFd, buffer, BUFFER_SIZE))
+            error("Erro na leitura");
+
+        printf("CLiente: %s", buffer);
+    
+        buffer[0] = '\0';   //Limpar buffer
+
+        fgets(buffer, BUFFER_SIZE, stdin);
+
+        if(write(newSockFd, buffer, strlen(buffer)) < 0)
+        {
+            error("Erro na escrita");
+        }
+    }
+
+    close(newSockFd);
+    close(sockfd);
     return 0;
 }
