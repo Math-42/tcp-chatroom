@@ -66,6 +66,8 @@ int main(int argc, char *argv[]){
 
     WINDOW *w_msg;
     PWIN    p_msg;
+    WINDOW *sw_msg;
+    PWIN    sp_smg;
 
     int ch;
 
@@ -116,19 +118,29 @@ int main(int argc, char *argv[]){
     wrefresh(sw_chat);
     scrollok(sw_chat,TRUE);  //habilita o scroll na janela de chat
 
+    sw_msg = derwin(w_msg, p_msg.height-2, p_msg.width-2, 1, 1);
+    if (sw_msg == NULL)
+    {
+        waddstr(w_msg, "Deu ruim na subwindow!");
+        endwin();
+        return 1;
+    }
+    wrefresh(sw_chat);
+    scrollok(sw_msg, TRUE);
+
 //Mensagens janela Online
     mvwprintw(w_online, 1, 1, "Usuarios Conectados:");  
     wrefresh(w_online);
 
-    wmove(w_chat, 1, 1);        //move cursor para a janela de chat
+    // wmove(sw_chat, 0, 0);        //move cursor para a janela de chat
 
 
-    keypad(w_msg, TRUE);        // Leitura de teclas especiais na janela chat (F1, direcionais, ...) 
+    keypad(sw_msg, TRUE);        // Leitura de teclas especiais na janela chat (F1, direcionais, ...) 
     echo();                     //letras dogitadas sao mostradas o terminal
-    wmove(w_msg, 1, 2);         //move cursor para onde comeca a caixa de escrita
-    wrefresh(w_msg);            //refresh na janela msg
+    wmove(sw_msg, 0, 0);         //move cursor para onde comeca a caixa de escrita
+    wrefresh(sw_msg);            //refresh na janela msg
 
-    ch = wgetch(w_msg);         //le o char da janela de msg
+    ch = wgetch(sw_msg);         //le o char da janela de msg
     while (ch != KEY_F(1))
     {
         while (ch != '\n') 
@@ -141,7 +153,7 @@ int main(int argc, char *argv[]){
 
             else{ input.push_back( ch ); }
              
-            ch = wgetch(w_msg);
+            ch = wgetch(sw_msg);
         }
     
         
@@ -152,10 +164,10 @@ int main(int argc, char *argv[]){
         if(ch != KEY_F(1)){ch = ' ';}  //reset ch
 
         //limpa a caixa de mensagem
-        wclear(w_msg);
-        wborder(w_msg, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
-        wmove(w_msg, 1, 2);         //move cursor para onde comeca a caixa de escrita
-        wrefresh(w_msg);            //refresh na janela msg
+        wclear(sw_msg);
+        //wborder(w_msg, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
+        wmove(sw_msg, 0, 0);         //move cursor para onde comeca a caixa de escrita
+        wrefresh(sw_msg);            //refresh na janela msg
     }
 
     
