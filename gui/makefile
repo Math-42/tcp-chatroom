@@ -1,10 +1,10 @@
 all: build run
 
-build: gui.cpp 
-	@g++ -g gui.cpp -o gui -lncurses -ltinfo
+build: gui.cpp main.cpp 
+	@g++ -g gui.cpp main.cpp -o main -lncurses -ltinfo
 
 run:
-	@./gui	
+	@./main	
 
 clean:
-	@rm gui
+	@rm main
