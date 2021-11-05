@@ -54,17 +54,17 @@ int main(int argc, char *argv[])
         error("Erro ao aceitar clizente");
 
     //Agora o programa entra em loop, e faz o que deve ser feito
-    while(strcmp("Bye", buffer) != 0)
+    while(strcmp("TERMINAR", buffer) != 0)
     {
-        buffer[0] = '\0';   //Limpar buffer
+        bzero(buffer, BUFFER_SIZE);   //Limpar buffer
 
         //Lê o que o cliente escreveu
-        if(read(newSockFd, buffer, BUFFER_SIZE))
+        if(read(newSockFd, buffer, BUFFER_SIZE) < 0)
             error("Erro na leitura");
 
         printf("CLiente: %s", buffer);
     
-        buffer[0] = '\0';   //Limpar buffer
+        bzero(buffer, BUFFER_SIZE);   //Limpar buffer
 
         fgets(buffer, BUFFER_SIZE, stdin);
 
