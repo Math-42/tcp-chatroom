@@ -17,16 +17,16 @@ void error(const char *msg_error)
 int main(int argc, char *argv[])
 {
     //Recebe o nome do arquivo e numero de PORT
-    if(argc < 2)
-        error("ERRO: Insira o nome do arquivo e o nro do PORT");
+    if(argc < 3)
+        error("ERRO: Insira o nome do arquivo, IP e o nro do PORT");
 
     
-    int sockfd, newSockFd, portNum, n;
-    struct sockaddr_in serv_addr, cli_addr;
+    int sockfd, portNum, n;
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
     char buffer[BUFFER_SIZE];
-    socklen_t clilen;
 
-    //Criar o socket
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if(sockfd < 0)
-        error("ERRO: Criação do socket mal sucedida");
+    portNum = atoi(argv[2]);
+
+    return 0;
+}
