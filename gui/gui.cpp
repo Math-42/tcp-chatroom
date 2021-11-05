@@ -17,19 +17,23 @@
 *
 *
 *   Coisas que estou tentando descobir como fazer:
-*       - dar um jeito de colocar uma mensagem em baixo da outra na tela de mensagens sem
-*       quebrar a borda da janela e quem sabe dar um scroll na pagina, pras mensagens irem subindo tlg  
+*       - (4/11/21) dar um jeito de colocar uma mensagem em baixo da outra na tela de mensagens sem
+*       quebrar a borda da janela e quem sabe dar um scroll na pagina, pras mensagens irem subindo tlg (feito)
+*       - (5/11/21) ver se tem algum jeito de o cara poder usar o backspace, e realmente apagar a mensagem enquanto ele ta escrevendo
+*       quem sabe um buffer ou algo do tipo
 *       
 *
 *   To-Do :
 *       - deixar o codigo mais modularizado pra ficar mais facil de integrar com o resto do programa
 *       - fazer aparecer os nomes na tela de pessoas online
+*       - resolver o bug da primeira mensagem estar deslocada para a esquerda
+*       - poder ver o historico de mensagens
 *
 *
 *   Incapacidades:
 *       - se o cara errar a mensagem ele pode dar backspace, mas como to usando o echo do terminal, a letra errada nao apaga
 *         ate que ele escreva algo por cima, mas a mensagem sai certa
-*       - se a mesnsagem for muito grande, ela vai inevitavelmente destruir a caixa onde manda as mensagens
+*       - se a mesnsagem for muito grande, ela vai inevitavelmente destruir a caixa onde manda as mensagens (concertado)
 *       
 */
 
