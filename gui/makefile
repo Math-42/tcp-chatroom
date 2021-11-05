@@ -7,4 +7,4 @@ run:
 	@./gui	
 
 clean:
-	@rm teste
+	@rm gui
