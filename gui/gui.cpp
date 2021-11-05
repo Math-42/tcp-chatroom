@@ -1,3 +1,39 @@
+/*
+* To tentando aprender como que faz o esquema das janelas. Basicamente
+*   o que tem implementado ate agora eh:
+*
+*   Tres Janelas:
+*       - uma que mostra os usuarios online (nao implementado)    
+*       - uma para mostrar as mensagens (em progresso)
+*       - uma para a pessoa digitar uma mensagem e enviar (mais ou menos implementada)
+*
+*   O codigo funciona assim:
+*       a pessoa digita algo no terminal e quando aperta enter, a mensagem aparece na tela de chat
+*       a caixa de escrita de mensagem eh apagada pra ela poder escrever outra mensagem 
+*       pra sair tem que apertar o F1
+*       pra mensagem, o que eu to fazendo eh ler cada char e colocar ele no final de um std::string (nao sei se eh o
+    melhor metodo, ate pq a maioria das funcoes tem que colocar um *char, mas eu fiz uma gambiarra usando string.data() na verdade.
+    o unico beneficio eh nao ter que ficar criando aqueles vetor de char esquisito e com a std::string o tamanho fica certinho tbm)
+*
+*
+*   Coisas que estou tentando descobir como fazer:
+*       - dar um jeito de colocar uma mensagem em baixo da outra na tela de mensagens sem
+*       quebrar a borda da janela e quem sabe dar um scroll na pagina, pras mensagens irem subindo tlg  
+*       
+*
+*   To-Do :
+*       - deixar o codigo mais modularizado pra ficar mais facil de integrar com o resto do programa
+*       - fazer aparecer os nomes na tela de pessoas online
+*
+*
+*   Incapacidades:
+*       - se o cara errar a mensagem ele pode dar backspace, mas como to usando o echo do terminal, a letra errada nao apaga
+*         ate que ele escreva algo por cima, mas a mensagem sai certa
+*       - se a mesnsagem for muito grande, ela vai inevitavelmente destruir a caixa onde manda as mensagens
+*       
+*/
+
+
 #include <ncurses.h>
 #include <string>
 
@@ -9,8 +45,10 @@ typedef struct _WIN_struct {
   int height, width;
 }PWIN;
 
+//tipos de window
 enum {ONLINE, CHAT, MSG};
 
+//funções 
 WINDOW *create_newwin(PWIN *p_win, int type);
 void destroy_win(WINDOW *local_win);
 
@@ -27,18 +65,19 @@ int main(int argc, char *argv[]){
     PWIN    p_msg;
 
     int ch;
+
     std::string input;
 
 //Setup
     initscr();              /*Incia o ncurses*/
     start_color();          /* Começa a funcionalidade das cores */
     raw();
-    //cbreak();               /* Buffer de linha desativado*/
+    //cbreak();             /* Buffer de linha desativado*/
     keypad(stdscr, TRUE);	/* Leitura de teclas especiais no stdscr (F1, direcionais, ...) */
     //noecho();               
     //curs_set( false );
 
-//Verifica tamanho
+//Verifica tamanho do terminal. Se for menor, as janelas ficam sobrepostas
     if ((LINES < 30) || (COLS < 90)) {
         endwin();
         puts("Seu terminal precisa ser pelo menos 90x30");
@@ -64,7 +103,8 @@ int main(int argc, char *argv[]){
 //Mensagens janela Online
     mvwprintw(w_online, 1, 1, "Usuarios Conectados:");  
     wrefresh(w_online);
-    wmove(w_chat, 1, 1);
+
+    wmove(w_chat, 1, 1);        //move cursor para a janela de chat
 
 
     keypad(w_msg, TRUE);        // Leitura de teclas especiais na janela chat (F1, direcionais, ...) 
@@ -72,16 +112,16 @@ int main(int argc, char *argv[]){
     wmove(w_msg, 1, 2);         //move cursor para onde comeca a caixa de escrita
     wrefresh(w_msg);            //refresh na janela msg
 
-    ch = wgetch(w_msg);
+    ch = wgetch(w_msg);         //le o char da janela de msg
     while (ch != KEY_F(1))
     {
-        while (ch != '\n')
+        while (ch != '\n') 
         {
             if (ch == KEY_F(1)) {break;}  
 
-            else if (ch == KEY_BACKSPACE) { input.erase(input.size()-1); }
+            else if (ch == KEY_BACKSPACE) { input.erase(input.size()-1); }     //esse if eh pra funcionar o backspace
 
-            else if (ch == KEY_UP) {wscrl(w_chat, -1);}
+            else if (ch == KEY_UP) {wscrl(w_chat, -1);}     // isso nao ta funcionando ainda, to testando
 
             else{ input.push_back( ch ); }
              
@@ -90,17 +130,22 @@ int main(int argc, char *argv[]){
     
         //wclear(w_chat);
         //wborder(w_chat, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
-        wscrl(w_chat, 1);
-        input.push_back('\n');
+
+        wscrl(w_chat, 1); //isso nao ta funcionando ainda
+
+        /* mostra mensagem na tela de chat */
+        input.push_back('\n');          
         waddstr(w_chat, input.data());
         wrefresh(w_chat);
 
         //mvwaddstr(w_chat, 3 ,3, "teste");
         //wrefresh(w_chat);
-
+        
+        /* reset na mensagem e no char atual*/
         input.clear();
         if(ch != KEY_F(1)){ch = ' ';}  //reset ch
 
+        //limpa a caixa de mensagem
         wclear(w_msg);
         wborder(w_msg, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
         wmove(w_msg, 1, 2);         //move cursor para onde comeca a caixa de escrita
@@ -108,22 +153,22 @@ int main(int argc, char *argv[]){
     }
 
     
-    
-
-    
 
     refresh();
     getch();
 
+    /* destroi as janelas */
     wclear(w_online);
+    wclear(w_msg);
     destroy_win(w_online);
-
-    //getch();
     destroy_win(w_chat);
+
+    /* fecha o ncurses*/
     endwin();
     return 0;
 }
 
+// funcao para criar as janelas dependendo do tipo especificado
 WINDOW *create_newwin(PWIN *p_win, int type)
 {
     
@@ -137,7 +182,7 @@ WINDOW *create_newwin(PWIN *p_win, int type)
         p_win->startx = 1;   
         break;
 
-    case CHAT:
+    case CHAT:      //janela onde mostra o chat
         p_win->height = LINES*4/5;
         p_win->width = COLS*3/4 - 6 ;
 
@@ -145,7 +190,7 @@ WINDOW *create_newwin(PWIN *p_win, int type)
         p_win->startx = COLS/4 + 3;   
         break;
     
-    case MSG:
+    case MSG:       //janela onde a pessoa escreve as mensagens
         p_win->height = LINES/5 - 2;
         p_win->width = COLS*3/4 - 6 ;
 
@@ -153,7 +198,7 @@ WINDOW *create_newwin(PWIN *p_win, int type)
         p_win->startx = COLS/4 + 3;    
         break;
 
-    default:
+    default:        //teoricamente nunca vai ser usado
         p_win->height = 10;
         p_win->width = 10;
         p_win->starty = 2;
@@ -168,12 +213,13 @@ WINDOW *create_newwin(PWIN *p_win, int type)
 
     wborder(local_win, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
 
-    wrefresh(local_win); /* Mostra aquela caixa 	*/
+    wrefresh(local_win); 
 
     return local_win;
 }
 
 
+// funcao para destruir a janela, tem que retirar a borda primeiro, sla pq
 void destroy_win(WINDOW *local_win){	
 
       wborder (local_win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
