@@ -12,8 +12,8 @@
 *       a caixa de escrita de mensagem eh apagada pra ela poder escrever outra mensagem 
 *       pra sair tem que apertar o F1
 *       pra mensagem, o que eu to fazendo eh ler cada char e colocar ele no final de um std::string (nao sei se eh o
-    melhor metodo, ate pq a maioria das funcoes tem que colocar um *char, mas eu fiz uma gambiarra usando string.data() na verdade.
-    o unico beneficio eh nao ter que ficar criando aqueles vetor de char esquisito e com a std::string o tamanho fica certinho tbm)
+*    melhor metodo, ate pq a maioria das funcoes tem que colocar um *char, mas eu fiz uma gambiarra usando string.data() na verdade.
+*    o unico beneficio eh nao ter que ficar criando aqueles vetor de char esquisito e com a std::string o tamanho fica certinho tbm)
 *
 *
 *   Coisas que estou tentando descobir como fazer:
@@ -49,6 +49,7 @@ typedef struct _WIN_struct {
 enum {ONLINE, CHAT, MSG};
 
 //funções 
+void escreve_msg (WINDOW *local_win, string msg);
 WINDOW *create_newwin(PWIN *p_win, int type);
 void destroy_win(WINDOW *local_win);
 
@@ -60,6 +61,8 @@ int main(int argc, char *argv[]){
 
     WINDOW *w_chat;
     PWIN    p_chat;
+    WINDOW *sw_chat;    //sub window no chat ---> preserva as bordas
+    PWIN    sp_chat;
 
     WINDOW *w_msg;
     PWIN    p_msg;
@@ -97,8 +100,21 @@ int main(int argc, char *argv[]){
 
 //Cria Janelas
     w_online = create_newwin(&p_online, ONLINE);
-    w_chat = create_newwin(&p_chat, CHAT);
     w_msg = create_newwin(&p_msg, MSG);
+    w_chat = create_newwin(&p_chat, CHAT);
+
+//Cria sub-janelas
+    sw_chat = derwin(w_chat, p_chat.height-2, p_chat.width-2, 1, 1);
+    if (sw_chat == NULL)
+    {
+        waddstr(w_chat, "Deu ruim na subwindow!");
+        endwin();
+        return 1;
+    }
+    
+    // wbkgd(sw_chat, COLOR_PAIR(1));  //DEBUG --- Pinta o background da subjaneal
+    wrefresh(sw_chat);
+    scrollok(sw_chat,TRUE);  //habilita o scroll na janela de chat
 
 //Mensagens janela Online
     mvwprintw(w_online, 1, 1, "Usuarios Conectados:");  
@@ -128,18 +144,8 @@ int main(int argc, char *argv[]){
             ch = wgetch(w_msg);
         }
     
-        //wclear(w_chat);
-        //wborder(w_chat, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
-
-        wscrl(w_chat, 1); //isso nao ta funcionando ainda
-
-        /* mostra mensagem na tela de chat */
-        input.push_back('\n');          
-        waddstr(w_chat, input.data());
-        wrefresh(w_chat);
-
-        //mvwaddstr(w_chat, 3 ,3, "teste");
-        //wrefresh(w_chat);
+        
+        escreve_msg(sw_chat, input);
         
         /* reset na mensagem e no char atual*/
         input.clear();
@@ -167,6 +173,30 @@ int main(int argc, char *argv[]){
     endwin();
     return 0;
 }
+
+
+// funcao para escrever uma mensagem em uma janela
+void escreve_msg (WINDOW *local_win, string msg)
+{
+    int y, x;       //coordenadas do cursor atual
+    int row, col;   //tamanho da janela
+
+    getyx(local_win, y, x);
+    getmaxyx(local_win, row, col);
+
+    if (y == row - 1) //esta na ultima linha
+    {
+        wscrl(local_win, 1);
+        mvwaddstr(local_win, y, 1, msg.data());
+    }
+    else    //esta no meio da tela
+    {
+        mvwaddstr(local_win, y+1, 1, msg.data());
+    }
+    
+    wrefresh(local_win);
+}
+
 
 // funcao para criar as janelas dependendo do tipo especificado
 WINDOW *create_newwin(PWIN *p_win, int type)
@@ -211,7 +241,8 @@ WINDOW *create_newwin(PWIN *p_win, int type)
 
     local_win = newwin(p_win->height, p_win->width, p_win->starty, p_win->startx);
 
-    wborder(local_win, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
+    box(local_win,ACS_VLINE, ACS_HLINE);
+    //wborder(local_win, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
 
     wrefresh(local_win); 
 
