@@ -46,17 +46,16 @@ int main(int argc, char *argv[])
     bcopy((char *) server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
     serv_addr.sin_port = htons(portNum);
 
-
-        //Tenta conectar
-        if(connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-            error("Erro na conexão");
-        
-        //Faz o que o programa deve fazer  no servidor
-        pthread_t c, t;
-        int *pclient = (int *) malloc(sizeof(int));
-        *pclient = sockfd;
-        pthread_create(&t, NULL, thread_le, pclient);
-        pthread_create(&c, NULL, thread_escreve, pclient);
+    //Tenta conectar
+    if(connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+        error("Erro na conexão");
+    
+    //Faz o que o programa deve fazer no servidor
+    pthread_t c, t;
+    int *pclient = (int *) malloc(sizeof(int));
+    *pclient = sockfd;
+    pthread_create(&t, NULL, thread_le, pclient);
+    pthread_create(&c, NULL, thread_escreve, pclient);
 
     //close(sockfd);
     while(1){}
