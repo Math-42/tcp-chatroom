@@ -5,21 +5,8 @@
 
 void escreve_msg (WINDOW *local_win, string msg)
 {
-    int y, x;       //coordenadas do cursor atual
-    int row, col;   //tamanho da janela
-
-    getyx(local_win, y, x);
-    getmaxyx(local_win, row, col);
-
-    if (y == row - 1) //esta na ultima linha
-    {
-        wscrl(local_win, 1);
-        mvwaddstr(local_win, y, 1, msg.data());
-    }
-    else    //esta no meio da tela
-    {
-        mvwaddstr(local_win, y+1, 1, msg.data());
-    }
+    
+    waddstr(local_win, msg.data());
     
     wrefresh(local_win);
 }
@@ -28,8 +15,8 @@ void setup ()
 {
     initscr();              /*Incia o ncurses*/
     start_color();          /* Começa a funcionalidade das cores */
-    raw();
-    //cbreak();             /* Buffer de linha desativado*/
+    //raw();
+    cbreak();             /* Buffer de linha desativado*/
     keypad(stdscr, TRUE);	/* Leitura de teclas especiais no stdscr (F1, direcionais, ...) */
     //noecho();               
     //curs_set( false );

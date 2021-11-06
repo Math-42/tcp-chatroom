@@ -97,44 +97,44 @@ int main(int argc, char *argv[]){
 
 //Leitura das mensagens
     keypad(sw_msg, TRUE);       // Leitura de teclas especiais na janela chat (F1, direcionais, ...) 
+
+    nocbreak();                 // terminal controla o backspace
     echo();                     //letras dogitadas sao mostradas o terminal
+
     wmove(sw_msg, 0, 0);        //move cursor para onde comeca a caixa de escrita
     wrefresh(sw_msg);           //refresh na janela msg
 
-    ch = wgetch(sw_msg);         //le o char da janela de msg
-    while (ch != KEY_F(1))
+    ch = '0';   //numero generico so pra comecar
+
+//Loop principal do programa
+    while (ch != '~')
     {
-        while (ch != '\n') 
+        /*reset na mensagem*/
+        input.clear();
+
+        while ( ch != '\n' ) //loop para leitura da mensagem
         {
-            if (ch == KEY_F(1)) {break;}  
-
-            else if (ch == KEY_BACKSPACE) { input.erase(input.size()-1); }     //esse if eh pra funcionar o backspace
-
-            else if (ch == KEY_UP) {wscrl(w_chat, -1);}     // isso nao ta funcionando ainda, to testando
-
-            else{ input.push_back( ch ); }
-             
             ch = wgetch(sw_msg);
+            if (ch == '~') {break;}    
+            input.push_back( ch );
         }
-    
+
+        if (ch != '~') {ch = '0';}  //reset pq se n, o ultimo char vai ser um '\n' --> nao vai ler outra mensagem
+        
         
         escreve_msg(sw_chat, input);
         
-        /* reset na mensagem e no char atual*/
-        input.clear();
-        if(ch != KEY_F(1)){ch = ' ';}  //reset ch
 
-        //limpa a caixa de mensagem
-        wclear(sw_msg);
-        //wborder(w_msg, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
-        wmove(sw_msg, 0, 0);         //move cursor para onde comeca a caixa de escrita
-        wrefresh(sw_msg);            //refresh na janela msg
+        
+        wclear(sw_msg);             //limpa a caixa de mensagem
+        wmove(sw_msg, 0, 0);        //move cursor para onde comeca a caixa de escrita
+        wrefresh(sw_msg);           //refresh na janela msg
     }
 
-    
-
     refresh();
-    getch();
+
+    getch();            //por algum motivo, precisa dessas duas expressoes pro programa nao fechar 
+    wgetch(sw_msg);     //automaticamente depois de um '~'
 
     /* destroi as janelas */
     wclear(w_online);
