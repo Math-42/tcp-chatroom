@@ -2,36 +2,33 @@
 #include <string>
 #include <fstream>
 #include <map>
-#include <pthread.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <linux/in.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <arpa/inet.h>
 #include <cstring>
+#include <sstream>
+#include "../socket/socket.hpp"
+#include <vector>
+#include <thread>
+#include <stdexcept>
+
 class Server
 {
 private:
 	std::string configFilePath;
 	std::map<std::string, int> configs;
-	struct sockaddr_int serverAddr();
-	int maxMessageSize;
-	int port;
-	int maxConnections;
+	std::vector<int> connections;
+	Socket *serverSocket;
+	struct sockaddr_in serverAddr;
 	bool isRunning;
 
-protected:
-	virtual void setup();
-	virtual void loop();
-	virtual void destroy();
-
+public:
+	void setup();
+	void clientHandlerLoop(int currConnectionFileDescriptor);
+	
 private:
 	void threadHandlerRoutine();
 	void readConfigs();
 
 public:
+	Server(std::string configFilePath);
+	~Server();
 	void run();
 };

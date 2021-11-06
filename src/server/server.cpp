@@ -1,0 +1,115 @@
+#include "./server.hpp"
+#include <iostream>
+
+Server::Server(std::string configFilePath)
+{
+	this->configFilePath = configFilePath;
+	readConfigs();
+	serverSocket = new Socket(std::string(""), configs["PORT"]);
+}
+
+void Server::readConfigs()
+{
+
+	std::fstream configurationFile(configFilePath);
+
+	if (!configurationFile.is_open())
+	{
+		throw std::runtime_error("Não foi possivel abrir o arquivo de configurações\n");
+		return;
+	}
+
+	std::string key;
+	char tempChar;
+	std::string line;
+	int value;
+
+	std::cout << "Lendo arquivo de configurações:" << std::endl;
+
+	while (getline(configurationFile, line))
+	{
+
+		std::stringstream parsedLine(line);
+		parsedLine >> key;
+		parsedLine >> tempChar;
+		parsedLine >> value;
+
+		configs[key] = value;
+		std::cout << key << ": " << value << std::endl;
+	}
+}
+
+void Server::threadHandlerRoutine()
+{
+
+	int connectionFileDescriptor;
+
+	//Espera até uma conexão aparecer e aceita
+	if (isRunning > 0 && !serverSocket->acceptConnection(connectionFileDescriptor))
+	{
+		printf("Falha na conexão\n");
+		return;
+	}
+	connections.push_back(connectionFileDescriptor);
+
+	std::thread currClientThread(&Server::clientHandlerLoop, this, connectionFileDescriptor);
+	currClientThread.detach();
+}
+
+void Server::setup()
+{
+	serverSocket->makeBind();
+	serverSocket->startListen(configs["MAX_CONNECTIONS"]);
+}
+
+void Server::clientHandlerLoop(int currConnectionFileDescriptor)
+{
+	char message[configs["MAX_MESSAGE_SIZE"]];
+
+	send(currConnectionFileDescriptor, "Conexão recebida com sucesso", configs["MAX_MESSAGE_SIZE"], 0);
+	printf("Iniciando conexão com o cliente %d\n", currConnectionFileDescriptor);
+
+	int receivedBytes;
+
+	while (1)
+	{
+
+		for (int i = 0; i < configs["MAX_MESSAGE_SIZE"]; i++)
+			message[i] = 0;
+		receivedBytes = recv(currConnectionFileDescriptor, message, sizeof(message), 0);
+		if (receivedBytes <= 0)
+			break;
+
+		printf("Recebido do cliente %d: %s\n", currConnectionFileDescriptor, message);
+		for (int i = 0; i < 10; i++)
+		{
+			if (connections[i] == -1)
+				continue;
+			printf("Enviando para o cliente  %d: %s\n", connections[i], message);
+			send(connections[i], message, sizeof(message), 0);
+		}
+		//send(*currConnectionFileDescriptor, message, sizeof(message), 0);
+		printf("Enviando para o cliente  %d: %s\n", currConnectionFileDescriptor, message);
+	};
+
+	printf("Fechando conexão com o cliente: %d\n", currConnectionFileDescriptor);
+	close(currConnectionFileDescriptor);
+}
+
+Server::~Server()
+{
+	serverSocket->closes();
+	delete serverSocket;
+	std::cout << "Encerrando o servidor" << std::endl;
+}
+
+void Server::run()
+{
+	isRunning = true;
+	setup();
+	while (isRunning)
+	{
+		threadHandlerRoutine();
+	};
+	isRunning = false;
+}
