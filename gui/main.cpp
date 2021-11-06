@@ -28,7 +28,7 @@
 *       - fazer aparecer os nomes na tela de pessoas online
 *       - resolver o bug da primeira mensagem estar deslocada para a esquerda                           (feito)
 *       - poder ver o historico de mensagens
-*       - impedir que o usuario envie mensagens vazias
+*       - impedir que o usuario envie mensagens vazias                                                  (feito)
 *
 *   Incapacidades:
 *       - se o cara errar a mensagem ele pode dar backspace, mas como to usando o echo do terminal, a letra errada nao apaga
@@ -45,16 +45,17 @@ int main(int argc, char *argv[]){
 
     WINDOW *w_online;
     PWIN    p_online;
+    WINDOW *sw_online;
 
     WINDOW *w_chat;
     PWIN    p_chat;
     WINDOW *sw_chat;    //sub window no chat ---> preserva as bordas
-    PWIN    sp_chat;
+    //PWIN    sp_chat;
 
     WINDOW *w_msg;
     PWIN    p_msg;
     WINDOW *sw_msg;     //sub window na msg ---> preserva as bordas
-    PWIN    sp_smg;
+    //PWIN    sp_smg;
 
     int ch;
 
@@ -90,9 +91,13 @@ int main(int argc, char *argv[]){
 //Cria sub-janelas
     sw_chat = create_newsubwin(w_chat, &p_chat);
     sw_msg = create_newsubwin(w_msg, &p_msg);
+    sw_online = create_newsubwin(w_online, &p_online);
 
 //Mensagens janela Online
-    mvwprintw(w_online, 1, 1, "Usuarios Conectados:");  
+    escreve_msg(sw_online, "Usuarios Conectados:\n\n");
+    waddch(sw_online, ACS_DIAMOND);
+    escreve_msg(sw_online, " "+username+"\n\n");
+    escreve_msg(sw_online, "Mussattinho");
     wrefresh(w_online);
 
 
@@ -127,10 +132,16 @@ int main(int argc, char *argv[]){
             input.push_back( ch );
         }
 
-        if (ch != '~') {ch = '0';}  //reset pq se n, o ultimo char vai ser um '\n' --> nao vai ler outra mensagem
-        
-        input.insert(0,username+": ");
-        escreve_msg(sw_chat, input);
+        if (ch != '~') 
+        {
+            ch = '0';   //reset pq se n, o ultimo char vai ser um '\n' --> nao vai ler outra mensagem
+            input.insert(0,username+": ");
+            escreve_msg(sw_chat, input);
+        }  
+        else
+        {
+            escreve_msg(sw_chat, "\t\t\t"+username+" saiu!");
+        }
                 
         wclear(sw_msg);             //limpa a caixa de mensagem
         wmove(sw_msg, 0, 0);        //move cursor para onde comeca a caixa de escrita
