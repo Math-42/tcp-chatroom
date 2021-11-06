@@ -21,6 +21,8 @@ struct clientes vetor_clientes[num_clientes];
 int i = -1;
 
 pthread_mutex_t lock;
+pthread_mutex_t add_cliente;
+
 
 void error(const char *msg_error)
 {
@@ -30,23 +32,27 @@ void error(const char *msg_error)
 
 void adiciona_cliente(struct clientes cli)
 {
+    pthread_mutex_lock(&add_cliente);
+
     i++;
     if(i == num_clientes)
         error("Numero maximo de clientes atingido");
 
     cli.ID = i;
     vetor_clientes[i] = cli;
+
+    pthread_mutex_unlock(&add_cliente);
 }
 
-void envia_msg(char *msg, int id)
+void envia_msg(char *msg, struct clientes cli_envia)
 {
     pthread_mutex_lock(&lock);
 
     for(int j = 0; j <= i; j++)
     {
-        if(vetor_clientes[j].ID != id)
+        if(vetor_clientes[j].socketfd != cli_envia.socketfd)
         {
-            printf("\nAgora a pessoa de ID %d vai enviar para %d de socket %d\n", id, vetor_clientes[j].ID, vetor_clientes[j].socketfd);
+            //printf("\nAgora a pessoa de ID %d vai enviar para %d de socket %d\n", id, vetor_clientes[j].ID, vetor_clientes[j].socketfd);
             if(write(vetor_clientes[j].socketfd, msg, strlen(msg)) < 0)
             {
 				error("ERRO ao enviar msgs");
@@ -116,13 +122,12 @@ int main(int argc, char *argv[])
             if(i > num_clientes)
                 error("Numero maximo de clientes atingido");
 
-            /*Adicionar novo cliente */
-            struct clientes cli;
-            cli.socketfd = newSockFd;
-            adiciona_cliente(cli);
-
+            /* Preparar Thread */
+            int *sockfd = (int *) malloc(sizeof(int));
+            *sockfd = newSockFd;
+            
             //Adiciona thread
-            pthread_create(&t, NULL, thread_servidor, NULL);
+            pthread_create(&t, NULL, thread_servidor, sockfd);
         }
         for(int k = 0; k <= i; k++)
         {
@@ -140,33 +145,54 @@ int main(int argc, char *argv[])
 void *thread_servidor(void *arg)
 {
     char buffer[BUFFER_SIZE];
+    bzero(buffer, BUFFER_SIZE);
+    struct clientes cli_aqui;
 
-    struct clientes cli_aqui = vetor_clientes[i];
-    //No futuro inserir manipulação do nome aqui
+    //Rece o socket deste usuário
+    cli_aqui.socketfd = *((int *) arg);
+    free(arg);
 
+    //Receber o nome deste usuário
+    int receive = recv(cli_aqui.socketfd, buffer, BUFFER_SIZE, 0);
+    if (receive > 0)
+    {
+	    if(strlen(buffer) > 0)
+		    strcpy(cli_aqui.nome, buffer);
+	} 
+    bzero(buffer, BUFFER_SIZE);
+    
+    //Adiciona o cliente e prepara msg de boas vindas!
+    adiciona_cliente(cli_aqui);
+    strcpy(buffer, cli_aqui.nome);
+    strcat(buffer, " entrou na conversa!");
+    envia_msg(buffer, cli_aqui);
     bzero(buffer, BUFFER_SIZE);
 
+    //Função do servidor! 
+    //Ouvir o cliente e redirecionar suas msgs para todos os outros clientes
     while(1)
     {
         int receive = recv(cli_aqui.socketfd, buffer, BUFFER_SIZE, 0);
         if (receive > 0)
         {
-            //printf("HEA BROW\n");
 			if(strlen(buffer) > 0)
             {
-			    envia_msg(buffer, cli_aqui.ID);
+			    envia_msg(buffer, cli_aqui);
 				str_arruma_string(buffer, strlen(buffer));
 				//printf("%s\n", buffer);
 			}
 		} 
         else if (receive == 0 || strcmp(buffer, "exit") == 0)
         {   
-            strcpy(buffer, "pessoa saiu");
+            strcpy(buffer, cli_aqui.nome);
+            strcat(buffer, " saiu da conversa!");
 			//sprintf(buffer, "%d has left\n", cli_aqui.ID);
-			printf("%s", buffer);
-			envia_msg(buffer, cli_aqui.ID);
+			//printf("%s", buffer);
+			envia_msg(buffer, cli_aqui);
             return NULL;
-		} else {
+		} 
+        else 
+        {
 			error("ERRO ao receber msg");
 		}
 

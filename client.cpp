@@ -150,10 +150,8 @@ int main(int argc, char **argv)
 
 
     /****** Conexão estabelecida *******/
-	// Envia mensagem de boas vindas
-    strcpy(msg, name);
-    strcat(msg, " entrou na conversa!\n\0");
-	send(sockfd, msg, 32, 0);
+	// Envia o nome
+	send(sockfd, name, 32, 0);
 
 	printf("--------CHATROOM--------\n");
 
