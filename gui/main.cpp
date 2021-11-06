@@ -10,7 +10,7 @@
 *   O codigo funciona assim:
 *       a pessoa digita algo no terminal e quando aperta enter, a mensagem aparece na tela de chat
 *       a caixa de escrita de mensagem eh apagada pra ela poder escrever outra mensagem 
-*       pra sair tem que apertar o F1
+*       pra sair tem que apertar o '~'
 *       pra mensagem, o que eu to fazendo eh ler cada char e colocar ele no final de um std::string (nao sei se eh o
 *    melhor metodo, ate pq a maioria das funcoes tem que colocar um *char, mas eu fiz uma gambiarra usando string.data() na verdade.
 *    o unico beneficio eh nao ter que ficar criando aqueles vetor de char esquisito e com a std::string o tamanho fica certinho tbm)
@@ -20,19 +20,19 @@
 *       - (4/11/21) dar um jeito de colocar uma mensagem em baixo da outra na tela de mensagens sem
 *       quebrar a borda da janela e quem sabe dar um scroll na pagina, pras mensagens irem subindo tlg (feito)
 *       - (5/11/21) ver se tem algum jeito de o cara poder usar o backspace, e realmente apagar a mensagem enquanto ele ta escrevendo
-*       quem sabe um buffer ou algo do tipo
+*       quem sabe um buffer ou algo do tipo (feito)
 *       
 *
 *   To-Do :
-*       - deixar o codigo mais modularizado pra ficar mais facil de integrar com o resto do programa
+*       - deixar o codigo mais modularizado pra ficar mais facil de integrar com o resto do programa    (feito)
 *       - fazer aparecer os nomes na tela de pessoas online
-*       - resolver o bug da primeira mensagem estar deslocada para a esquerda
+*       - resolver o bug da primeira mensagem estar deslocada para a esquerda                           (feito)
 *       - poder ver o historico de mensagens
-*
+*       - impedir que o usuario envie mensagens vazias
 *
 *   Incapacidades:
 *       - se o cara errar a mensagem ele pode dar backspace, mas como to usando o echo do terminal, a letra errada nao apaga
-*         ate que ele escreva algo por cima, mas a mensagem sai certa
+*         ate que ele escreva algo por cima, mas a mensagem sai certa (concertado)
 *       - se a mesnsagem for muito grande, ela vai inevitavelmente destruir a caixa onde manda as mensagens (concertado)
 *       
 */
