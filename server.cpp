@@ -129,16 +129,15 @@ int main(int argc, char *argv[])
             //Adiciona thread
             pthread_create(&t, NULL, thread_servidor, sockfd);
         }
-        for(int k = 0; k <= i; k++)
+        /*for(int k = 0; k <= i; k++)
         {
             printf("\n\n Usuario %d", vetor_clientes[k].ID);
             printf("\nRespectivo socket: %d\n\n", vetor_clientes[k].socketfd);
-        }
+        }*/
         //sleep(1);
     }
 
     close(newSockFd);
-    close(sockfd);
     return 0;
 }
 
