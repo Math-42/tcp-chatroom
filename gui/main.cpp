@@ -58,7 +58,8 @@ int main(int argc, char *argv[]){
 
     int ch;
 
-    std::string input;
+    string input;
+    string username = "Mussattinho";
 
 //Setup
     setup();
@@ -115,18 +116,22 @@ int main(int argc, char *argv[]){
         while ( ch != '\n' ) //loop para leitura da mensagem
         {
             ch = wgetch(sw_msg);
+
             if (ch == '~') break;
-            else if(ch == '\n' && input.empty()) continue;   
+            else if(ch == '\n' && input.empty()) //impede mensagens vazias
+            {
+                ch = '0';
+                continue;   
+            }
+
             input.push_back( ch );
         }
 
         if (ch != '~') {ch = '0';}  //reset pq se n, o ultimo char vai ser um '\n' --> nao vai ler outra mensagem
         
-        
+        input.insert(0,username+": ");
         escreve_msg(sw_chat, input);
-        
-
-        
+                
         wclear(sw_msg);             //limpa a caixa de mensagem
         wmove(sw_msg, 0, 0);        //move cursor para onde comeca a caixa de escrita
         wrefresh(sw_msg);           //refresh na janela msg
