@@ -3,9 +3,9 @@
 *   o que tem implementado ate agora eh:
 *
 *   Tres Janelas:
-*       - uma que mostra os usuarios online (nao implementado)    
-*       - uma para mostrar as mensagens (em progresso)
-*       - uma para a pessoa digitar uma mensagem e enviar (mais ou menos implementada)
+*       - uma que mostra os usuarios online                 (funcionando mas pode melhorar)    
+*       - uma para mostrar as mensagens                     (funcionando mas pode melhorar)
+*       - uma para a pessoa digitar uma mensagem e enviar   (funcionando mas pode melhorar)
 *
 *   O codigo funciona assim:
 *       a pessoa digita algo no terminal e quando aperta enter, a mensagem aparece na tela de chat
@@ -25,7 +25,7 @@
 *
 *   To-Do :
 *       - deixar o codigo mais modularizado pra ficar mais facil de integrar com o resto do programa    (feito)
-*       - fazer aparecer os nomes na tela de pessoas online
+*       - fazer aparecer os nomes na tela de pessoas online                                             (feito)
 *       - resolver o bug da primeira mensagem estar deslocada para a esquerda                           (feito)
 *       - poder ver o historico de mensagens
 *       - impedir que o usuario envie mensagens vazias                                                  (feito)
@@ -74,12 +74,12 @@ int main(int argc, char *argv[]){
     }
 
 //Cores
-    init_pair(1, COLOR_CYAN, COLOR_RED);
+    init_pair(1, COLOR_CYAN, COLOR_BLACK);
 
 
 //Mensagens tela incial
     attron(COLOR_PAIR(1));
-    printw("Pressione F1 para sair");
+    printw("Pressione \'~\' para sair");
     printw("   Lines: %d, Columns %d", LINES, COLS);
     refresh();
     attroff(COLOR_PAIR(1));
