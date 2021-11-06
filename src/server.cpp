@@ -2,7 +2,7 @@
 
 int main()
 {
-	Server server("cli-tcp-chat-server.conf");
+	Server server("config/cli-tcp-chat-server.conf");
 	server.run();
 	return 0;
 }
