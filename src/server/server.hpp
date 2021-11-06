@@ -1,34 +1,33 @@
 #pragma once
-#include <string>
+#include <cstring>
 #include <fstream>
 #include <map>
-#include <cstring>
 #include <sstream>
-#include "../socket/socket.hpp"
-#include <vector>
-#include <thread>
 #include <stdexcept>
+#include <string>
+#include <thread>
+#include <vector>
 
-class Server
-{
-private:
-	std::string configFilePath;
-	std::map<std::string, int> configs;
-	std::vector<int> connections;
-	Socket *serverSocket;
-	struct sockaddr_in serverAddr;
-	bool isRunning;
+#include "../socket/socket.hpp"
 
-public:
-	void setup();
-	void clientHandlerLoop(int currConnectionFileDescriptor);
-	
-private:
-	void threadHandlerRoutine();
-	void readConfigs();
+class Server {
+   private:
+    std::string configFilePath;
+    std::map<std::string, int> configs;
+    std::vector<int> connections;
+    Socket *serverSocket;
+    struct sockaddr_in serverAddr;
+    bool isRunning;
 
-public:
-	Server(std::string configFilePath);
-	~Server();
-	void run();
+   private:
+    void setup();
+    void clientHandlerLoop(int currConnectionFileDescriptor);
+
+    void threadHandlerRoutine();
+    void readConfigs();
+
+   public:
+    Server(std::string configFilePath);
+    ~Server();
+    void run();
 };
