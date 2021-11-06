@@ -8,6 +8,9 @@
 #include<netinet/in.h>
 
 #define BUFFER_SIZE 255 //Tamanho das mensagens
+#define num_clientes 5
+int vetor_clientes[num_clientes], i = 0;
+pthread_mutex_t lock;
 
 void error(const char *msg_error)
 {
@@ -48,7 +51,7 @@ int main(int argc, char *argv[])
     //Configuração inicial do servidor concluída
 
     //Preparar o servidor para "ouvir"
-    listen(sockfd, 5); //Numero limite de clientes
+    listen(sockfd, num_clientes); //Numero limite de clientes
     clilen = sizeof(cli_addr);
 
     //Agora o programa entra em loop, e faz o que deve ser feito
@@ -60,9 +63,12 @@ int main(int argc, char *argv[])
             error("Erro ao aceitar clizente");
 
         pthread_t t;
-        int *pclient = (int *) malloc(sizeof(int));
-        *pclient = newSockFd;
+        int *pclient = (int *) malloc(2*sizeof(int));
+        pclient[0] = newSockFd;
+        vetor_clientes[i] = newSockFd;
+        pclient[1] = i;
         pthread_create(&t, NULL, thread_servidor, pclient);
+        i++;
     }
 
     close(newSockFd);
@@ -73,30 +79,40 @@ int main(int argc, char *argv[])
 void *thread_servidor(void *arg)
 {
     int client_socket =  *((int*) arg);
+    int sock_aux;
+    int i_aqui = *((int *) arg + 1);
     free(arg); //Nao precisamos mais deste ponteiro
 
     char buffer[BUFFER_SIZE];
+    int j;
+
+    printf("Aqui rodou a %d", i_aqui);
+    fflush(stdout);
 
     while(1)
     {
-        bzero(buffer, BUFFER_SIZE);   //Limpar buffer
 
         //Lê o que o cliente escreveu
-        if(read(client_socket, buffer, BUFFER_SIZE) < 0)
-            error("Erro na leitura");
-
-        printf("CLiente: %s", buffer);
-    
-        bzero(buffer, BUFFER_SIZE);   //Limpar buffer
-
-        fgets(buffer, BUFFER_SIZE, stdin);
-        if(strncmp("TERMINAR", buffer, 8) == 0)
-            break;
-
-        if(write(client_socket, buffer, strlen(buffer)) < 0)
+        bzero(buffer, BUFFER_SIZE);
+        int rec = read(client_socket, buffer, BUFFER_SIZE);
+        if(rec < 0)
+           error("Erro na leitura");
+        else if(rec >0)
         {
-            error("Erro na escrita");
+            printf("Aqui i eh %d", i);
+            pthread_mutex_lock(&lock);
+            for(j = 0; j <= i; j++)
+            {
+                if(vetor_clientes[j] == 0)
+                    continue;
+                
+                sock_aux = vetor_clientes[j];
+                if(write(sock_aux, buffer, strlen(buffer)) < 0)
+                    error("Erro na escrita");
+            }
+            pthread_mutex_unlock(&lock);
         }
+                
     }
     return NULL;
 }
