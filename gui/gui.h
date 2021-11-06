@@ -2,6 +2,7 @@
 
 
 #include <ncurses.h>
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -29,3 +30,6 @@ WINDOW *create_newsubwin(WINDOW *w_parent, PWIN *p_parent);
 
 // Destroi a janela
 void destroy_win(WINDOW *local_win);
+
+//Printa usuarios online
+void print_users (WINDOW *win, vector<string> users);

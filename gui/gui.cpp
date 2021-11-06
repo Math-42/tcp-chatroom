@@ -5,7 +5,7 @@
 
 void escreve_msg (WINDOW *local_win, string msg)
 {
-    
+
     waddstr(local_win, msg.data());
     
     wrefresh(local_win);
@@ -124,4 +124,18 @@ void destroy_win(WINDOW *local_win){
 
     //wrefresh(local_win);
     delwin(local_win);
+}
+
+
+void print_users (WINDOW *win, vector<string> users)
+{
+    escreve_msg(win, "Usuarios Conectados:\n\n");
+
+    for (int i = 0; i < users.size(); i++)
+    {
+        waddch(win, ACS_DIAMOND);
+        escreve_msg(win, " "+users[i]+"\n\n");
+        
+    }
+    wrefresh(win);
 }

@@ -61,6 +61,7 @@ int main(int argc, char *argv[]){
 
     string input;
     string username = "Mussattinho";
+    vector<string> online;
 
 //Setup
     setup();
@@ -93,12 +94,21 @@ int main(int argc, char *argv[]){
     sw_msg = create_newsubwin(w_msg, &p_msg);
     sw_online = create_newsubwin(w_online, &p_online);
 
+//Adiciona usuarios online
+    online.push_back(username);
+    online.push_back("Anakolas");
+    online.push_back("Mr. Dois");
+    online.push_back("Scherlock");
+    online.push_back("Jao");
+
+    print_users(sw_online, online);
+
 //Mensagens janela Online
-    escreve_msg(sw_online, "Usuarios Conectados:\n\n");
+    /* escreve_msg(sw_online, "Usuarios Conectados:\n\n");
     waddch(sw_online, ACS_DIAMOND);
     escreve_msg(sw_online, " "+username+"\n\n");
     escreve_msg(sw_online, "Mussattinho");
-    wrefresh(w_online);
+    wrefresh(w_online); */
 
 
 //Leitura das mensagens
