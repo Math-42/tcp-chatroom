@@ -14,10 +14,11 @@ struct clientes
 {
     int ID;
     int socketfd;
+    char nome[32];
 };
 
 struct clientes vetor_clientes[num_clientes];
-int i = 0;
+int i = -1;
 
 pthread_mutex_t lock;
 
@@ -29,12 +30,12 @@ void error(const char *msg_error)
 
 void adiciona_cliente(struct clientes cli)
 {
-    if(i+1 == num_clientes)
+    i++;
+    if(i == num_clientes)
         error("Numero maximo de clientes atingido");
 
     cli.ID = i;
     vetor_clientes[i] = cli;
-    i++;
 }
 
 void envia_msg(char *msg, int id)
@@ -45,7 +46,8 @@ void envia_msg(char *msg, int id)
     {
         if(vetor_clientes[j].ID != id)
         {
-            if(write(vetor_clientes[i].socketfd, msg, strlen(msg)) < 0)
+            printf("\nAgora a pessoa de ID %d vai enviar para %d de socket %d\n", id, vetor_clientes[j].ID, vetor_clientes[j].socketfd);
+            if(write(vetor_clientes[j].socketfd, msg, strlen(msg)) < 0)
             {
 				error("ERRO ao enviar msgs");
 				break;
@@ -90,9 +92,6 @@ int main(int argc, char *argv[])
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portNum); //Função htons garante que serv e cli se comuniquem em um mesmo "endian"
-    
-    //signal(SIGPIPE, SIG_IGN);
-
 
     if(bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
@@ -104,6 +103,7 @@ int main(int argc, char *argv[])
     listen(sockfd, num_clientes); //Numero limite de clientes
     clilen = sizeof(cli_addr);
 
+    newSockFd = -4;
     //Agora o programa entra em loop, e faz o que deve ser feito
     while(1)
     {
@@ -111,20 +111,24 @@ int main(int argc, char *argv[])
         newSockFd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
         if(newSockFd < 0)
             error("Erro ao aceitar clizente");
+        else{
         
-        if(i > num_clientes)
-            error("Numero maximo de clientes atingido");
+            if(i > num_clientes)
+                error("Numero maximo de clientes atingido");
 
-        /*Adicionar novo cliente */
-        struct clientes cli;
-        cli.socketfd = newSockFd;
-        adiciona_cliente(cli);
+            /*Adicionar novo cliente */
+            struct clientes cli;
+            cli.socketfd = newSockFd;
+            adiciona_cliente(cli);
 
-        //Adiciona thread
-        int *id = (int *) malloc(sizeof(int));
-        *id = vetor_clientes[i-1].ID;
-        pthread_create(&t, NULL, thread_servidor, id);
-        
+            //Adiciona thread
+            pthread_create(&t, NULL, thread_servidor, NULL);
+        }
+        for(int k = 0; k <= i; k++)
+        {
+            printf("\n\n Usuario %d", vetor_clientes[k].ID);
+            printf("\nRespectivo socket: %d\n\n", vetor_clientes[k].socketfd);
+        }
         //sleep(1);
     }
 
@@ -135,10 +139,9 @@ int main(int argc, char *argv[])
 
 void *thread_servidor(void *arg)
 {
-    int id = *((int *) arg);
     char buffer[BUFFER_SIZE];
 
-    struct clientes cli_aqui = vetor_clientes[id];
+    struct clientes cli_aqui = vetor_clientes[i];
     //No futuro inserir manipulação do nome aqui
 
     bzero(buffer, BUFFER_SIZE);
@@ -148,16 +151,18 @@ void *thread_servidor(void *arg)
         int receive = recv(cli_aqui.socketfd, buffer, BUFFER_SIZE, 0);
         if (receive > 0)
         {
+            //printf("HEA BROW\n");
 			if(strlen(buffer) > 0)
             {
 			    envia_msg(buffer, cli_aqui.ID);
 				str_arruma_string(buffer, strlen(buffer));
-				printf("%s\n", buffer);
+				//printf("%s\n", buffer);
 			}
 		} 
         else if (receive == 0 || strcmp(buffer, "exit") == 0)
-        {
-			sprintf(buffer, "%d has left\n", cli_aqui.ID);
+        {   
+            strcpy(buffer, "pessoa saiu");
+			//sprintf(buffer, "%d has left\n", cli_aqui.ID);
 			printf("%s", buffer);
 			envia_msg(buffer, cli_aqui.ID);
             return NULL;
