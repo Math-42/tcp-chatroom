@@ -115,7 +115,8 @@ int main(int argc, char *argv[]){
         while ( ch != '\n' ) //loop para leitura da mensagem
         {
             ch = wgetch(sw_msg);
-            if (ch == '~') {break;}    
+            if (ch == '~') break;
+            else if(ch == '\n' && input.empty()) continue;   
             input.push_back( ch );
         }
 
