@@ -1,5 +1,6 @@
 #include "./server.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 Server::Server(std::string configFilePath) {
@@ -76,6 +77,7 @@ void Server::clientHandlerLoop(int currConnectionFileDescriptor) {
         }
     };
 
+    connections.erase(std::remove(connections.begin(), connections.end(), currConnectionFileDescriptor), connections.end());
     printf("Fechando conexão com o cliente: %d\n", currConnectionFileDescriptor);
     close(currConnectionFileDescriptor);
 }
