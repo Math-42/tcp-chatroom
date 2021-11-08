@@ -55,24 +55,23 @@ void Server::setup() {
 }
 
 void Server::clientHandlerLoop(int currConnectionFileDescriptor) {
-    char message[configs["MAX_MESSAGE_SIZE"]];
-
     send(currConnectionFileDescriptor, "Conexão recebida com sucesso", configs["MAX_MESSAGE_SIZE"], 0);
     printf("Iniciando conexão com o cliente %d\n", currConnectionFileDescriptor);
 
     int receivedBytes;
 
     while (1) {
-        std::memset(&message, 0, sizeof(message));
+        char message[configs["MAX_MESSAGE_SIZE"]];
+        std::memset(&message, 0, configs["MAX_MESSAGE_SIZE"]);
 
-        receivedBytes = recv(currConnectionFileDescriptor, message, sizeof(message), 0);
+        receivedBytes = recv(currConnectionFileDescriptor, message, configs["MAX_MESSAGE_SIZE"], 0);
 
         if (receivedBytes <= 0) break;
 
         printf("Recebido do cliente %d: %s\n", currConnectionFileDescriptor, message);
 
         for (auto client : connections) {
-            send(client, message, sizeof(message), 0);
+            send(client, message, configs["MAX_MESSAGE_SIZE"], 0);
             printf("Enviando para o cliente  %d: %s\n", client, message);
         }
     };
