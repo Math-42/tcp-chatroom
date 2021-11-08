@@ -3,6 +3,7 @@
 #include <iostream>
 
 Socket::Socket(std::string address, unsigned short port) : address{address} {
+    //dominio do socket, tipo de socket, protocolo
     fileDescriptor = socket(PF_INET, SOCK_STREAM, getprotobyname("tcp")->p_proto);
 
     if (fileDescriptor == -1) {
@@ -11,9 +12,9 @@ Socket::Socket(std::string address, unsigned short port) : address{address} {
 
     std::memset(&socketAddr, 0, sizeof(socketAddr));
 
-    socketAddr.sin_family = AF_INET;
+    socketAddr.sin_family = AF_INET;  // definindo como IPv4
     socketAddr.sin_addr.s_addr = (this->address == "") ? htonl(INADDR_ANY) : inet_addr(this->address.c_str());
-    socketAddr.sin_port = htons(port);
+    socketAddr.sin_port = htons(port);  // Seta a porta utilizada
     isClosed = false;
 }
 
