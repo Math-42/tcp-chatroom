@@ -45,6 +45,7 @@ void Communicator::run() {
     while (isRunning) {
         char message[maxMessageSize];
         if (recv(clientSocket->getFileDescriptor(), message, sizeof(message), 0) <= 0) {
+            raise(SIGTERM);
             break;
         }
         onReceive(message);

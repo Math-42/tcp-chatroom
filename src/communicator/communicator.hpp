@@ -1,4 +1,5 @@
 #pragma once
+#include <csignal>
 #include <mutex>
 #include <sstream>
 
