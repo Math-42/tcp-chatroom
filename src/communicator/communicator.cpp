@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+//inicialização das variáveis estáticas da classe
 Communicator *Communicator::instance{nullptr};
 std::mutex Communicator::mutex;
 
@@ -39,9 +40,11 @@ void Communicator::run() {
     clientSocket->connect();
     char initialMessage[maxMessageSize];
 
+    //lê a mensagem inicial do servidor
     read(clientSocket->getFileDescriptor(), initialMessage, sizeof(initialMessage));
     onConnect(initialMessage);
 
+    //loop principal de comunicação
     while (isRunning) {
         char message[maxMessageSize];
         if (recv(clientSocket->getFileDescriptor(), message, sizeof(message), 0) <= 0) {
@@ -64,6 +67,7 @@ void Communicator::onConnect(char *message) {
     GlobalControler::addNewMessage(configs.str());
     GlobalControler::addNewMessage(message);
 
+    //envia a mensagem inicial de conexão
     std::string greeting = ">> " + user + " entrou no chat! <<";
     greeting.resize(maxMessageSize);
     send(clientSocket->getFileDescriptor(), greeting.data(), greeting.size(), 0);
