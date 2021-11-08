@@ -19,7 +19,7 @@ Cumprindo os requisitos do trabalho, nós desenvolvemos um <i>chatroom</i> usand
 
 Para executar o nosso programa, basta utilizar o Makefile. Primeiro, entre no diretório do programa. Depois, execute os seguintes comandos
 
-<code>$ make init <br>$ make</code>
+<code>$ make init</code> <br> <code>$ make</code>
 
 Nesse momento todos os arquivos estão compilados e prontos para serem executados
 
