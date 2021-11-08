@@ -2,14 +2,14 @@
 
 #include <iostream>
 BoxWindow::BoxWindow(int height, int width, int startHeight, int startWidth) : title{""} {
-    container= newwin(height, width, startHeight, startWidth);
-    window = newwin(height-2, width-2, startHeight+1, startWidth+1);
+    container = newwin(height, width, startHeight, startWidth);
+    window = newwin(height - 2, width - 2, startHeight + 1, startWidth + 1);
     setup();
 }
 
 BoxWindow::BoxWindow(std::string title, int height, int width, int startHeight, int startWidth) : title{title} {
-    container= newwin(height, width, startHeight, startWidth);
-    window = newwin(height-2, width-2, startHeight+1, startWidth+1);
+    container = newwin(height, width, startHeight, startWidth);
+    window = newwin(height - 2, width - 2, startHeight + 1, startWidth + 1);
     setup();
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <sstream>
 #include <vector>
 
 #include "../box-window/box-window.hpp"

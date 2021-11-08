@@ -4,17 +4,13 @@
 #include <chrono>
 #include <thread>
 
-#include "./chat-tree/chat-tree-window.hpp"
 #include "./chat/chat-window.hpp"
 #include "./input/input-window.hpp"
-#include "./users/user-window.hpp"
 
 class Window {
    private:
     WINDOW* mainWindow;
-    UserWindow* users;
     ChatWindow* chat;
-    ChatTreeWindow* chatTree;
     InputWindow* input;
 
     int maxRows;

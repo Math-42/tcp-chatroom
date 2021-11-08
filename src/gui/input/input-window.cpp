@@ -15,27 +15,22 @@ InputWindow::InputWindow(std::string title, int height, int width, int startHeig
 void InputWindow::draw() {
     setup();
     wrefresh(container);
-    char buffChar = ' ';
-    std::string strInput;
+    char string[communicator->maxMessageSize - 56];
 
-    while (true) {
-        buffChar = wgetch(window);
-        if (buffChar == '\n') break;
-        strInput += buffChar;
-    };
+    wgetnstr(window, string, communicator->maxMessageSize - 56);
 
-    onInput(strInput);
+    onInput(string);
     wclear(window);
     wrefresh(window);
     draw();
 }
 
 void InputWindow::onInput(std::string input) {
-    std::cout << input << std::endl;
-    printf("%s", input.c_str());
-    communicator->sendMessage((input.c_str()));
-    if (input == ":q\0") {
+    if (input[0] == ':' && input[1] == 'q') {
         endwin();
+        communicator->disconnect();
         exit(0);
+    } else {
+        communicator->sendMessage((input.c_str()));
     }
 }
