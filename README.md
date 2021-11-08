@@ -11,7 +11,26 @@ Desenvolvido por:
   <li>Thiago Henrique Vicentini         - 11234270</li>
 </ul>
 
+<h2>Sobre o trabalho</h2>
+
 <h2>Como executar</h2>
 
-Para executar o nosso programa, basta utilizar o Makefile
+Para executar o nosso programa, basta utilizar o Makefile. Primeiro, entre no diretório do programa. Depois, execute os seguintes comandos
+
+<code>$ make init <br>$ make</code>
+
+Nesse momento todos os arquivos estão compilados e prontos para serem executados
+
+<h4>Executar o servidor</h4>
+
+<code>$ ./build/TCP-server </code>
+
+<h4>Executar o cliente</h4>
+
+<code>$ ./build/TCP-client </code>
+
+<h4>Para fechar o cliente e o servidor</h4>
+
+Inserir <code>:q</code> em ambos os programas
+
 
