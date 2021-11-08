@@ -1,6 +1,6 @@
 #include "./window.hpp"
 
-Window::Window(int minHeight, int minWidth, int refreshRate)
+Window::Window(int refreshRate)
     : refreshRate{refreshRate} {
     initscr();
     start_color();
@@ -13,6 +13,7 @@ Window::Window(int minHeight, int minWidth, int refreshRate)
     maxColumns -= 2;
     maxRows -= 1;
 
+    //cria as sub janelas
     chat = new ChatWindow("Chat", (7 * maxColumns) / 8, 3 * maxRows / 4, 1, (maxRows / 8) + 1);
     input = new InputWindow("Message", maxColumns / 8 + 1, 3 * maxRows / 4, (7 * maxColumns / 8) + 1, (maxRows / 8) + 1);
 
@@ -26,6 +27,7 @@ Window::~Window() {
 }
 
 void Window::show() {
+    //cria uma thread para redesenhar as sub janelas
     std::thread drawer(&Window::refresh, this);
     drawer.detach();
 }

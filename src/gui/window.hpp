@@ -19,10 +19,24 @@ class Window {
     int maxColumns;
 
    public:
-    Window(int height, int width, int refreshRate);
+    /**
+	* Construtor da janela do programa
+	* @param refreshRate indica quantas vezes por segundo a janela deve ser desenhada
+	*/
+    Window(int refreshRate);
+    /**
+	 * Destrutor da janela
+	 */
     ~Window();
+
+    /**
+	 * Inicializa a janela com o seu setup e começa a desenhar
+	 */
     void show();
 
    private:
+    /**
+	* Realiza uma refresh das janelas e de sua suas sub janelas
+	*/
     void refresh();
 };
