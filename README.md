@@ -29,7 +29,7 @@ Nesse momento todos os arquivos estão compilados e prontos para serem executado
 
 <h4>Executar o cliente</h4>
 
-<code>$ ./build/TCP-client </code>
+<code>$ ./build/TCP-client <i>nome_cliente</i></code>
 
 <h4>Para fechar o cliente e o servidor</h4>
 
