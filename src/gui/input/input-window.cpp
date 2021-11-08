@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include <iostream>
-i
+
 InputWindow::InputWindow(std::string title, int height, int width, int startHeight, int startWidth)
     : BoxWindow::BoxWindow(title, height, width, startHeight, startWidth) {
     std::thread drawer(&InputWindow::draw, this);
