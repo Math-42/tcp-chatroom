@@ -1,7 +1,7 @@
 #pragma once
 #include "../../communicator/communicator.hpp"
 #include "../box-window/box-window.hpp"
-
+#include <csignal>
 class InputWindow : public BoxWindow {
    private:
     Communicator* communicator;
