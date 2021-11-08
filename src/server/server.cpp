@@ -39,8 +39,7 @@ void Server::threadHandlerRoutine() {
     int connectionFileDescriptor;
 
     //Espera até uma conexão aparecer e aceita
-    if (isRunning > 0 && !serverSocket->acceptConnection(connectionFileDescriptor)) {
-        printf("Falha na conexão\n");
+    if (isRunning && !serverSocket->acceptConnection(connectionFileDescriptor)) {
         return;
     }
     connections.push_back(connectionFileDescriptor);
@@ -60,7 +59,7 @@ void Server::clientHandlerLoop(int currConnectionFileDescriptor) {
 
     int receivedBytes;
 
-    while (1) {
+    while (isRunning) {
         char message[configs["MAX_MESSAGE_SIZE"]];
         std::memset(&message, 0, configs["MAX_MESSAGE_SIZE"]);
 
@@ -81,10 +80,16 @@ void Server::clientHandlerLoop(int currConnectionFileDescriptor) {
     close(currConnectionFileDescriptor);
 }
 
-Server::~Server() {
+void Server::kill() {
+    isRunning = false;
+    for (auto client : connections) {
+        send(client, "Fechando o servidor", configs["MAX_MESSAGE_SIZE"], 0);
+        close(client);
+    }
+
+    std::cout << "Encerrando o servidor" << std::endl;
     serverSocket->close();
     delete serverSocket;
-    std::cout << "Encerrando o servidor" << std::endl;
 }
 
 void Server::run() {

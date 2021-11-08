@@ -27,7 +27,7 @@ class Server {
     void readConfigs();
 
    public:
+    void kill();
     Server(std::string configFilePath);
-    ~Server();
     void run();
 };
