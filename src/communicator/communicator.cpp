@@ -5,10 +5,10 @@
 Communicator *Communicator::instance{nullptr};
 std::mutex Communicator::mutex;
 
-Communicator *Communicator::getInstance(int port, int maxMessageSize, std::string address) {
+Communicator *Communicator::getInstance(int port, int maxMessageSize, std::string address, std::string user) {
     std::lock_guard<std::mutex> lock(mutex);
     if (instance == nullptr) {
-        instance = new Communicator(port, maxMessageSize, address);
+        instance = new Communicator(port, maxMessageSize, address, user);
     }
     return instance;
 }
@@ -21,9 +21,11 @@ Communicator *Communicator::getInstance() {
     return instance;
 }
 
-Communicator::Communicator(int port, int maxMessageSize, std::string address)
+Communicator::Communicator(int port, int maxMessageSize, std::string address, std::string user)
     : maxMessageSize{maxMessageSize},
-      port{port} {
+      port{port},
+      address{address},
+      user{user} {
     clientSocket = new Socket(address, port);
 };
 
@@ -52,16 +54,31 @@ void Communicator::run() {
 }
 
 void Communicator::onConnect(char *message) {
-    //std::cout << message << std::endl;
-    GlobalControler::addNewMessage(Message("sender", message));
+    std::stringstream configs;
+
+    configs << "PORT:     " << port
+            << "\nADDRESS:  " << address
+            << "\nUSERNAME: " << user;
+
+    GlobalControler::addNewMessage(configs.str());
+    GlobalControler::addNewMessage(message);
+
+    std::string greeting = ">> " + user + " entrou no chat! <<";
+    greeting.resize(maxMessageSize);
+    send(clientSocket->getFileDescriptor(), greeting.data(), greeting.size(), 0);
 }
 
 void Communicator::onReceive(char *message) {
-    GlobalControler::addNewMessage(Message("sender", message));
-    //std::cout << message << std::endl;
+    GlobalControler::addNewMessage(message);
+}
+
+void Communicator::disconnect() {
+    std::string goodbye = ">> " + user + " saiu do chat! <<";
+    send(clientSocket->getFileDescriptor(), goodbye.data(), goodbye.size(), 0);
 }
 
 void Communicator::sendMessage(std::string message) {
-    Message newMessage("curr", message);
-    send(clientSocket->getFileDescriptor(), message.data(), message.size(), 0);
+    message.resize(maxMessageSize);
+    Message newMessage(user, message);
+    send(clientSocket->getFileDescriptor(), newMessage.data.data(), newMessage.size, 0);
 }
