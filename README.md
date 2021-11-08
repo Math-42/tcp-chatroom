@@ -13,6 +13,8 @@ Desenvolvido por:
 
 <h2>Sobre o trabalho</h2>
 
+Cumprindo os requisitos do trabalho, nós desenvolvemos um <i>chatroom</i> usando o protocolo TCP. É necessário executar um servidor local, então os clientes poderão se conectar à sala de bato papo e trocar mensagem em tempo real.
+
 <h2>Como executar</h2>
 
 Para executar o nosso programa, basta utilizar o Makefile. Primeiro, entre no diretório do programa. Depois, execute os seguintes comandos
@@ -31,6 +33,6 @@ Nesse momento todos os arquivos estão compilados e prontos para serem executado
 
 <h4>Para fechar o cliente e o servidor</h4>
 
-Inserir <code>:q</code> em ambos os programas
+Inserir <code>:q</code> para os clientes e <code>CTRL+C</code> no servidor.
 
 
