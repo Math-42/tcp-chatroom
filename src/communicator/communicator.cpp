@@ -31,7 +31,6 @@ Communicator::Communicator(int port, int maxMessageSize, std::string address, st
 };
 
 Communicator::~Communicator() {
-    clientSocket->close();
     delete clientSocket;
 }
 

@@ -20,6 +20,8 @@ Window::Window(int minHeight, int minWidth, int refreshRate)
 }
 
 Window::~Window() {
+    delete chat;
+    delete input;
     endwin();
 }
 
