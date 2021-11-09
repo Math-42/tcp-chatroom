@@ -5,7 +5,7 @@
 Desenvolvido por:
 <ul>
   <li>João Gabriel Zanão Costa          - 11234266</li>
-  <li>Marcos Vinícius Firmino Pietruci  - 10770072</li>
+  <li>Marcos Vinícius Firmino Pietrucci  - 10770072</li>
   <li>Matheus Vieira Gonçalves          - 11200397</li>
   <li>Murilo Mussatto                   - 11234245</li>
   <li>Thiago Henrique Vicentini         - 11234270</li>
